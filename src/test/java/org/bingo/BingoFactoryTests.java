@@ -1,5 +1,6 @@
 package org.bingo;
 
+import org.apache.commons.lang3.time.StopWatch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -150,5 +151,19 @@ public class BingoFactoryTests {
                 }
             }
         }
+    }
+
+    @Test
+    @DisplayName("Generating 10k strips in less than 1 second (1000ms)")
+    public void generate10kStrips() {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        for (int i = 0; i < 10000; i++) {
+            bingoFactory.generateBingoStrip();
+        }
+        stopWatch.stop();
+        assertTrue((stopWatch.getStopTime() - stopWatch.getStartTime()) < 1000);
+        System.out.println(("[10k-STRIPS-EXECUTION-TIME]: " + (stopWatch.getStopTime() - stopWatch.getStartTime())) + "ms");
+        stopWatch.reset();
     }
 }
