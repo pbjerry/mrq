@@ -8,9 +8,11 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class BingoFactory {
 
-    private static final int TICKETS_ON_STRIP = 6;
-    private static final int TICKET_ROWS = 3;
-    private static final int TICKET_COLUMNS = 9;
+    public static final int TICKETS_ON_STRIP = 6;
+    public static final int TICKET_ROWS = 3;
+    public static final int TICKET_COLUMNS = 9;
+    public static final int ALLOWED_NUMBERS_IN_ROW = 5;
+    public static final int ALLOWED_SPACES_IN_ROW = 4;
     private static final int FIRST_COLUMN_ALLOWED_DOUBLES = 3;
     private static final int INNER_COLUMN_ALLOWED_DOUBLES = 4;
     private int numbersInRow;
@@ -22,7 +24,7 @@ public class BingoFactory {
     private static final Random RANDOM = ThreadLocalRandom.current();
 
     //Map of numbers for insertion into the tickets (key is index of the column, value is the array with numbers for insertion)
-    private Map<Integer, List<Integer>> bingoNumbers;
+    private final Map<Integer, List<Integer>> bingoNumbers;
 
     public BingoFactory() {
         bingoNumbers = new HashMap<>();
@@ -33,10 +35,8 @@ public class BingoFactory {
 
     /**
      * Generator of the all available numbers for insertion into the bingo tickets (1 - 90)
-     *
-     * @return Map of numbers for insertion into the tickets (key is index of the column, value is the array with numbers for insertion)
      */
-    public  Map<Integer, List<Integer>> generateAllBingoNumbers() {
+    private void generateAllBingoNumbers() {
         bingoNumbers.clear();
         List<Integer> listOfNumsInColum;
         for (int i = 0; i < 9; i++) {
@@ -52,7 +52,6 @@ public class BingoFactory {
             }
             bingoNumbers.put(i, listOfNumsInColum);
         }
-        return bingoNumbers;
     }
 
     /**
@@ -62,7 +61,7 @@ public class BingoFactory {
      */
     public int[][][] generateBingoStrip() {
         int[][][] bingoStrip = new int[TICKETS_ON_STRIP][TICKET_ROWS][TICKET_COLUMNS];
-        bingoNumbers = generateAllBingoNumbers();
+        generateAllBingoNumbers();
         doubleOccurrencesPerColumn.clear();
 
         // Populating first two rows in each ticket, fulfilling all columns, to prevent empty columns in tickets
@@ -97,8 +96,8 @@ public class BingoFactory {
                         // Obtaining random number for insert into the ticket
                         randomNumberForColumn = bingoNumbers.get(randomColumnIndex).remove(0);
 
-                        // Inserting and swapping numbers if necessary, for ascending order in each column
-                        sortAndInsertNumber(bingoStrip, ticket, row);
+                        // Inserting number in the column
+                        bingoStrip[ticket][row][randomColumnIndex] = randomNumberForColumn;
 
                         populatedColumns.add(randomColumnIndex);
                         if (!unPopulatedColumns.isEmpty()) {
@@ -109,24 +108,6 @@ public class BingoFactory {
                     }
                 }
             }
-        }
-    }
-
-    /**
-     * Sorting and inserting number into the first two rows of each ticket
-     *
-     * @param bingoStrip strip of bingo tickets
-     * @param ticket ticket index
-     * @param row row index
-     */
-    private void sortAndInsertNumber(int[][][] bingoStrip, int ticket, int row) {
-        if (row == 0) {
-            bingoStrip[ticket][row][randomColumnIndex] = randomNumberForColumn;
-        } else if (randomNumberForColumn < bingoStrip[ticket][0][randomColumnIndex] && bingoStrip[ticket][0][randomColumnIndex] > 0) {
-            bingoStrip[ticket][row][randomColumnIndex] = bingoStrip[ticket][0][randomColumnIndex];
-            bingoStrip[ticket][0][randomColumnIndex] = randomNumberForColumn;
-        } else {
-            bingoStrip[ticket][row][randomColumnIndex] = randomNumberForColumn;
         }
     }
 
@@ -216,8 +197,8 @@ public class BingoFactory {
      * has already fulfilled column with the numbers from the provided column index
      */
     private void setColumnIndexOfNextLongestArrayWithNumbersForTicket() {
-        int longest = 0;
-        int indexOfFirstLongest = 0;
+        int longest = bingoNumbers.get(unPopulatedColumns.get(0)).size();
+        int indexOfFirstLongest = unPopulatedColumns.get(0);
         for (int columnIndex : unPopulatedColumns) {
             if (bingoNumbers.get(columnIndex).size() > longest) {
                 longest = bingoNumbers.get(columnIndex).size();

@@ -7,22 +7,16 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
+import static org.bingo.BingoFactory.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class BingoFactoryTests {
-
-    private static final int TICKETS_ON_STRIP = 6;
-    private static final int TICKET_ROWS = 3;
-    private static final int TICKET_COLUMNS = 9;
-    private static final int ALLOWED_NUMBERS_IN_ROW = 5;
-    private static final int ALLOWED_SPACES_IN_ROW = 4;
 
     BingoFactory bingoFactory;
 
     @BeforeEach
     public void setUp() {
         bingoFactory = new BingoFactory();
-        bingoFactory.generateAllBingoNumbers();
     }
 
     @Test
@@ -116,11 +110,35 @@ public class BingoFactoryTests {
         }
     }
 
+    /**
+     * Helper method which generate all possible numbers for insertion into the bingo strip tickets
+     *
+     * @return Map of column indexes as keys and list not inserted numbers for each column
+     */
+    private Map<Integer, List<Integer>> generateAllBingoNumbers() {
+        Map<Integer, List<Integer>> bingoNumbers = new HashMap<>();
+        List<Integer> listOfNumsInColum;
+        for (int i = 0; i < 9; i++) {
+            listOfNumsInColum = new ArrayList<>();
+            if (i > 0) {
+                listOfNumsInColum.add(10 * i); // adding first number
+            }
+            for (int j = 1; j < 10; j++) {
+                listOfNumsInColum.add((10 * i) + j);
+            }
+            if (i == 8) {
+                listOfNumsInColum.add(90);
+            }
+            bingoNumbers.put(i, listOfNumsInColum);
+        }
+        return bingoNumbers;
+    }
+
     @Test
     @DisplayName("Checking if numbers vertically are in the right range")
     public void checkingIfNumbersVerticallyAreInTheRightRange() {
         int[][][] bingoStrip = bingoFactory.generateBingoStrip();
-        Map<Integer, List<Integer>> bingoNumbers = bingoFactory.generateAllBingoNumbers();
+        Map<Integer, List<Integer>> bingoNumbers = generateAllBingoNumbers();
         List<Integer> numbersInColumn = new ArrayList<>();
         for (int column = 0; column < TICKET_COLUMNS; column++) {
             numbersInColumn.clear();
