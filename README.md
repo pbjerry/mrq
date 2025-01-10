@@ -7,7 +7,6 @@
 * [Technologies](#technologies)
 * [Test cases](#test-cases)
 * [Usage example](#usage-example)
-* [API documentation](#api-documentation)
 <!-- TOC -->
 
 ## Description
